@@ -1,13 +1,17 @@
 package xyz.deftu.fd;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Objects;
 
 class FileDownloaderImpl implements FileDownloader {
     private boolean caches = Constants.caches;
     private String userAgent;
     private int timeout = Constants.timeout;
-    private int bufferSize = Constants.bufferSize;
 
     private FileDownloadState state;
     private File tempDir;
@@ -28,18 +32,40 @@ class FileDownloaderImpl implements FileDownloader {
 
     public void download(String url) {
         if (state != FileDownloadState.INITIALIZED) throw new IllegalStateException("Download must take place after initialization");
+        HttpURLConnection connection = ConnectionHelper.createConnection(url, caches, userAgent, timeout);
+        try (InputStream stream = connection.getInputStream()) {
+            File tempFile = FileHelper.createTemporaryFile(tempDir);
+            while (tempFile.exists()) tempFile = FileHelper.createTemporaryFile(tempDir);
+            if (!tempFile.exists()) tempFile.createNewFile();
+            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+            ReadableByteChannel streamChannel = Channels.newChannel(stream);
+            while (fileOutputStream.getChannel().transferFrom(streamChannel, 0, Long.MAX_VALUE) > 0);
+            this.tempFile = tempFile;
+            fileOutputStream.flush();
+            fileOutputStream.close();
+            streamChannel.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            downloaded = true;
+            state = FileDownloadState.DOWNLOADED;
+        }
     }
 
     public void validate() {
         if (state != FileDownloadState.DOWNLOADED) throw new IllegalStateException("Validation must take place after download.");
         doingValidation = true;
-        // TODO - failedValidation = existingFile != null && existingFile.exists() && !Objects.equals(fetchChecksum(file.toPath()), fetchChecksum(existingFile.toPath()));
+        failedValidation = Objects.equals(HashingHelper.fetchChecksum(tempFile), HashingHelper.fetchChecksum(existingFile));
         state = FileDownloadState.VALIDATED;
     }
 
     public void complete(File newFile) {
         if (state == FileDownloadState.DOWNLOADED || state == FileDownloadState.VALIDATED) {
-
+            if (downloaded && (!doingValidation || !failedValidation)) {
+                if (existingFile != null && existingFile.exists()) existingFile.delete();
+                if (!tempFile.renameTo(newFile)) throw new IllegalStateException("Failed to move downloaded file.");
+                state = FileDownloadState.COMPLETED;
+            } else tempFile.delete();
         } else throw new IllegalStateException("Completion must take place after download or validation.");
     }
 
@@ -55,11 +81,6 @@ class FileDownloaderImpl implements FileDownloader {
 
     public FileDownloader withTimeout(int timeout) {
         this.timeout = timeout;
-        return this;
-    }
-
-    public FileDownloader withBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
         return this;
     }
 

@@ -6,22 +6,19 @@ class FileDownloaderFactoryImpl implements FileDownloaderFactory {
     private boolean caches = Constants.caches;
     private String userAgent;
     private int timeout = Constants.timeout;
-    private int bufferSize = Constants.bufferSize;
 
     public FileDownloader create(File tempDir, File existingFile) {
         return FileDownloader.create(tempDir, existingFile)
                 .withCaches(caches)
                 .withUserAgent(userAgent)
-                .withTimeout(timeout)
-                .withBufferSize(bufferSize);
+                .withTimeout(timeout);
     }
 
     public FileDownloader create(File tempDir) {
         return FileDownloader.create(tempDir)
                 .withCaches(caches)
                 .withUserAgent(userAgent)
-                .withTimeout(timeout)
-                .withBufferSize(bufferSize);
+                .withTimeout(timeout);
     }
 
     public FileDownloaderFactory withCaches(boolean caches) {
@@ -36,11 +33,6 @@ class FileDownloaderFactoryImpl implements FileDownloaderFactory {
 
     public FileDownloaderFactory withTimeout(int timeout) {
         this.timeout = timeout;
-        return this;
-    }
-
-    public FileDownloaderFactory withBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
         return this;
     }
 }

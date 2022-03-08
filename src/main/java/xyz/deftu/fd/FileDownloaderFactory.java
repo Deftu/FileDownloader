@@ -11,7 +11,6 @@ public interface FileDownloaderFactory {
     FileDownloaderFactory withCaches(boolean caches);
     FileDownloaderFactory withUserAgent(String userAgent);
     FileDownloaderFactory withTimeout(int timeout);
-    FileDownloaderFactory withBufferSize(int bufferSize);
 
     static FileDownloaderFactory create() {
         return new FileDownloaderFactoryImpl();

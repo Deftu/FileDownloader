@@ -15,7 +15,6 @@ public interface FileDownloader {
     FileDownloader withCaches(boolean caches);
     FileDownloader withUserAgent(String userAgent);
     FileDownloader withTimeout(int timeout);
-    FileDownloader withBufferSize(int bufferSize);
 
     /* Management. */
     FileDownloadState getState();

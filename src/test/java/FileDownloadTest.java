@@ -8,6 +8,13 @@ public class FileDownloadTest {
     @Test public void test() {
         FileDownloaderFactory factory = FileDownloaderFactory.create()
                 .withUserAgent("Mozilla/5.0 (File Downloader Test)");
-        FileDownloader downloader = factory.create(new File("Temporary"));
+        File tempDir = new File("Temporary");
+        File sampleFile = new File("sample.json");
+        if (!tempDir.exists()) tempDir.mkdirs();
+        FileDownloader downloader = factory.create(tempDir, sampleFile);
+        String url = "https://filesamples.com/samples/code/json/sample2.json";
+        downloader.download(url);
+        downloader.validate();
+        downloader.complete(sampleFile);
     }
 }
