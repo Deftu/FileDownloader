@@ -1,5 +1,7 @@
 plugins {
+    id("maven-publish")
     id("java-library")
+    id("signing")
     id("java")
 }
 
@@ -13,6 +15,76 @@ repositories {
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            groupId = projectGroup
+            artifactId = projectName
+            version = projectVersion
+
+            pom {
+                name = projectName
+                description = projectDescription
+                url = projectGit
+
+                licenses {
+                    license {
+                        name = "GNU LESSER GENERAL PUBLIC LICENSE, Version 3"
+                        url = "https://www.gnu.org/licenses/lgpl-3.0.en.html"
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = "deftu"
+                        name = "Deftu"
+                        email = "deftudev@gmail.com"
+                    }
+                }
+
+                scm {
+                    url = projectGit
+                }
+            }
+        }
+    }
+
+    if (hasProperty("publishing.username") && hasProperty("publishing.password")) {
+        repositories {
+            maven {
+                name = "SonatypeRepo"
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username = findProperty("publishing.username")
+                    password = findProperty("publishing.password")
+                }
+            }
+        }
+    }
+}
+
+jar {
+    from("LICENSE")
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+artifacts {
+    archives(javadocJar, sourcesJar)
+}
+
+if (hasProperty("signing.password")) {
+    signing {
+        sign publishing.publications.mavenJava
+        sign configurations.archives
+    }
 }
 
 test {
