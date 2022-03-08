@@ -16,6 +16,7 @@ class ConnectionHelper {
                 connection.setUseCaches(caches);
                 connection.setReadTimeout(timeout);
                 connection.setConnectTimeout(timeout);
+                connection.setInstanceFollowRedirects(true);
                 connection.setDoInput(true);
                 return connection;
             } else return null;
