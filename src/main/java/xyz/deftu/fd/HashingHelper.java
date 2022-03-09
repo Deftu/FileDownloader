@@ -12,7 +12,6 @@ class HashingHelper {
             digest.update(Files.readAllBytes(file.toPath()));
             return DatatypeConverter.printHexBinary(digest.digest()).toUpperCase();
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }

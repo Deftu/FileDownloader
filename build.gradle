@@ -54,7 +54,7 @@ publishing {
     }
 
     repositories {
-        if (hasProperty("publishing.username") && hasProperty("publishing.password")) {
+        //if (hasProperty("publishing.username") && hasProperty("publishing.password")) {
             maven {
                 name = "SonatypeRepo"
                 url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
@@ -63,7 +63,7 @@ publishing {
                     password = findProperty("publishing.password")
                 }
             }
-        }
+        //}
     }
 }
 

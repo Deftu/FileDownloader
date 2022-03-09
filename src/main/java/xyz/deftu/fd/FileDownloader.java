@@ -1,6 +1,7 @@
 package xyz.deftu.fd;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 public interface FileDownloader {
     // Internals.
@@ -39,12 +40,20 @@ public interface FileDownloader {
     // Additional properties.
 
     /**
-     * Applies a <b>caches</b> values to this {@link FileDownloader}.
+     * Applies a <b>caches</b> value to this {@link FileDownloader}.
      *
      * @param caches The value for <b>caches</b>.
      * @return The {@link FileDownloader} itself.
      */
     FileDownloader withCaches(boolean caches);
+
+    /**
+     * Applies a <b>transfer callback</b> value to this {@link FileDownloader}.
+     *
+     * @param transferCallback The value for <b>transferCallback</b>.
+     * @return The {@link FileDownloader} itself.
+     */
+    FileDownloader withTransferCallback(Consumer<Long> transferCallback);
 
     /**
      * Applies a <b>userAgent</b> values to this {@link FileDownloader}.

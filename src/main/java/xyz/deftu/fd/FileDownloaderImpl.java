@@ -7,9 +7,11 @@ import java.net.HttpURLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 class FileDownloaderImpl implements FileDownloader {
     private boolean caches = Constants.caches;
+    private Consumer<Long> transferCallback = Constants.transferCallback;
     private String userAgent;
     private int timeout = Constants.timeout;
 
@@ -39,7 +41,8 @@ class FileDownloaderImpl implements FileDownloader {
             if (!tempFile.exists()) tempFile.createNewFile();
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             ReadableByteChannel streamChannel = Channels.newChannel(stream);
-            while (fileOutputStream.getChannel().transferFrom(streamChannel, 0, Long.MAX_VALUE) > 0);
+            long progress;
+            while ((progress = fileOutputStream.getChannel().transferFrom(streamChannel, 0, Long.MAX_VALUE)) > 0) transferCallback.accept(progress);
             this.tempFile = tempFile;
             fileOutputStream.flush();
             fileOutputStream.close();
@@ -71,6 +74,11 @@ class FileDownloaderImpl implements FileDownloader {
 
     public FileDownloader withCaches(boolean caches) {
         this.caches = caches;
+        return this;
+    }
+
+    public FileDownloader withTransferCallback(Consumer<Long> transferCallback) {
+        this.transferCallback = transferCallback;
         return this;
     }
 

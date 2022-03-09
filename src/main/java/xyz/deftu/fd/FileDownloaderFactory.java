@@ -1,6 +1,7 @@
 package xyz.deftu.fd;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 /**
  * A factory for instantiation of {@link FileDownloader}s,
@@ -38,6 +39,14 @@ public interface FileDownloaderFactory {
      * @return The {@link FileDownloaderFactory} itself.
      */
     FileDownloaderFactory withCaches(boolean caches);
+
+    /**
+     * Applies predefined <b>transfer callback</b> values to this {@link FileDownloaderFactory}.
+     *
+     * @param transferCallback The predefined value for <b>transferCallback</b>.
+     * @return The {@link FileDownloaderFactory} itself.
+     */
+    FileDownloaderFactory withTransferCallback(Consumer<Long> transferCallback);
 
     /**
      * Applies predefined <b>userAgent</b> values to this {@link FileDownloaderFactory}.
