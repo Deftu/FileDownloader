@@ -42,7 +42,9 @@ class FileDownloaderImpl implements FileDownloader {
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             ReadableByteChannel streamChannel = Channels.newChannel(stream);
             long progress;
-            while ((progress = fileOutputStream.getChannel().transferFrom(streamChannel, 0, Long.MAX_VALUE)) > 0) transferCallback.accept(progress);
+            while ((progress = fileOutputStream.getChannel().transferFrom(streamChannel, 0, Long.MAX_VALUE)) > 0)
+                if (transferCallback != null)
+                    transferCallback.accept(progress);
             this.tempFile = tempFile;
             fileOutputStream.flush();
             fileOutputStream.close();
@@ -68,7 +70,7 @@ class FileDownloaderImpl implements FileDownloader {
                 if (existingFile != null && existingFile.exists()) existingFile.delete();
                 if (!tempFile.renameTo(newFile)) throw new IllegalStateException("Failed to move downloaded file.");
                 state = FileDownloadState.COMPLETED;
-            } else tempFile.delete();
+            } else if (tempFile != null) tempFile.delete();
         } else throw new IllegalStateException("Completion must take place after download or validation.");
     }
 

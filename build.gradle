@@ -17,6 +17,19 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
 
+jar {
+    from("LICENSE")
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+artifacts {
+    archives(javadocJar, sourcesJar)
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -65,19 +78,6 @@ publishing {
             }
         //}
     }
-}
-
-jar {
-    from("LICENSE")
-}
-
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
-artifacts {
-    archives(javadocJar, sourcesJar)
 }
 
 if (hasProperty("signing.password")) {
