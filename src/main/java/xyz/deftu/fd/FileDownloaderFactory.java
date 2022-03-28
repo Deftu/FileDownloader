@@ -33,20 +33,20 @@ public interface FileDownloaderFactory {
     // Properties.
 
     /**
+     * Applies predefined <b>callback</b> values to this {@link FileDownloaderFactory}.
+     *
+     * @param callback The predefined value for <b>callback</b>.
+     * @return The {@link FileDownloaderFactory} itself.
+     */
+    FileDownloaderFactory withDownloadCallback(DownloadCallback callback);
+
+    /**
      * Applies predefined <b>caches</b> values to this {@link FileDownloaderFactory}.
      * 
      * @param caches The predefined value for <b>caches</b>.
      * @return The {@link FileDownloaderFactory} itself.
      */
     FileDownloaderFactory withCaches(boolean caches);
-
-    /**
-     * Applies predefined <b>transfer callback</b> values to this {@link FileDownloaderFactory}.
-     *
-     * @param transferCallback The predefined value for <b>transferCallback</b>.
-     * @return The {@link FileDownloaderFactory} itself.
-     */
-    FileDownloaderFactory withTransferCallback(Consumer<Long> transferCallback);
 
     /**
      * Applies predefined <b>userAgent</b> values to this {@link FileDownloaderFactory}.

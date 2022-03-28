@@ -40,6 +40,24 @@ public interface FileDownloader {
     // Additional properties.
 
     /**
+     * @return This file downloader's downloader callback, this is what downloads the file initially.
+     */
+    DownloadCallback getDownloadCallback();
+
+    /**
+     * Applies a <b>callback</b> value to this {@link FileDownloader}.
+     *
+     * @param callback The value for <b>callback</b>.
+     * @return The {@link FileDownloader} itself.
+     */
+    FileDownloader withDownloadCallback(DownloadCallback callback);
+
+    /**
+     * @return Whether this download is cached.
+     */
+    boolean isCached();
+
+    /**
      * Applies a <b>caches</b> value to this {@link FileDownloader}.
      *
      * @param caches The value for <b>caches</b>.
@@ -48,12 +66,9 @@ public interface FileDownloader {
     FileDownloader withCaches(boolean caches);
 
     /**
-     * Applies a <b>transfer callback</b> value to this {@link FileDownloader}.
-     *
-     * @param transferCallback The value for <b>transferCallback</b>.
-     * @return The {@link FileDownloader} itself.
+     * @return This file downloader's user agent.
      */
-    FileDownloader withTransferCallback(Consumer<Long> transferCallback);
+    String getUserAgent();
 
     /**
      * Applies a <b>userAgent</b> values to this {@link FileDownloader}.
@@ -62,6 +77,11 @@ public interface FileDownloader {
      * @return The {@link FileDownloader} itself.
      */
     FileDownloader withUserAgent(String userAgent);
+
+    /**
+     * @return This file downloader's download timeout.
+     */
+    int getTimeout();
 
     /**
      * Applies a <b>timeout</b> values to this {@link FileDownloader}.

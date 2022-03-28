@@ -10,8 +10,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 class FileDownloaderImpl implements FileDownloader {
+    private DownloadCallback downloadCallback;
     private boolean caches = Constants.caches;
-    private Consumer<Long> transferCallback = Constants.transferCallback;
     private String userAgent;
     private int timeout = Constants.timeout;
 
@@ -34,27 +34,8 @@ class FileDownloaderImpl implements FileDownloader {
 
     public void download(String url) {
         if (state != FileDownloadState.INITIALIZED) throw new IllegalStateException("Download must take place after initialization");
-        HttpURLConnection connection = ConnectionHelper.createConnection(url, caches, userAgent, timeout);
-        try (InputStream stream = connection.getInputStream()) {
-            File tempFile = FileHelper.createTemporaryFile(tempDir);
-            while (tempFile.exists()) tempFile = FileHelper.createTemporaryFile(tempDir);
-            if (!tempFile.exists()) tempFile.createNewFile();
-            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-            ReadableByteChannel streamChannel = Channels.newChannel(stream);
-            long progress;
-            while ((progress = fileOutputStream.getChannel().transferFrom(streamChannel, 0, Long.MAX_VALUE)) > 0)
-                if (transferCallback != null)
-                    transferCallback.accept(progress);
-            this.tempFile = tempFile;
-            fileOutputStream.flush();
-            fileOutputStream.close();
-            streamChannel.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            downloaded = true;
-            state = FileDownloadState.DOWNLOADED;
-        }
+        downloaded = downloadCallback.download(this, url);
+        state = FileDownloadState.DOWNLOADED;
     }
 
     public void validate() {
@@ -74,19 +55,35 @@ class FileDownloaderImpl implements FileDownloader {
         } else throw new IllegalStateException("Completion must take place after download or validation.");
     }
 
+    public DownloadCallback getDownloadCallback() {
+        return downloadCallback;
+    }
+
+    public FileDownloader withDownloadCallback(DownloadCallback callback) {
+        this.downloadCallback = callback;
+        return this;
+    }
+
+    public boolean isCached() {
+        return caches;
+    }
+
     public FileDownloader withCaches(boolean caches) {
         this.caches = caches;
         return this;
     }
 
-    public FileDownloader withTransferCallback(Consumer<Long> transferCallback) {
-        this.transferCallback = transferCallback;
-        return this;
+    public String getUserAgent() {
+        return userAgent;
     }
 
     public FileDownloader withUserAgent(String userAgent) {
         this.userAgent = userAgent;
         return this;
+    }
+
+    public int getTimeout() {
+        return timeout;
     }
 
     public FileDownloader withTimeout(int timeout) {
@@ -96,5 +93,13 @@ class FileDownloaderImpl implements FileDownloader {
 
     public FileDownloadState getState() {
         return state;
+    }
+
+    public void setTempFile(File tempFile) {
+        this.tempFile = tempFile;
+    }
+
+    public File getTempDir() {
+        return tempDir;
     }
 }
